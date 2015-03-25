@@ -1,5 +1,5 @@
 
-Object.prototype.swipe = function( param ){
+$.prototype.swipe = function( param ){
 	/* prototype add */
 	var target = this, //object
 		proto = this.__proto__,

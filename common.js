@@ -1,4 +1,6 @@
 
+
+
 var swipeGallery = {
 	v : {},
 
@@ -45,7 +47,7 @@ var swipeGallery = {
 		});
 	},
 	touchStart : function(e){
-		console.log(e);
+		//console.log(e);
 
 		var v = swipeGallery.v;
 
@@ -57,7 +59,7 @@ var swipeGallery = {
 		var v = swipeGallery.v,
 			posX = v.targetItemPos[v.numNow].x + e.distanceX;
 
-		swipeGallery.move({
+		swipeGallery.drag({
 			left: posX - v.targetWidth,
 			now: posX,
 			right: posX + v.targetWidth
@@ -65,13 +67,20 @@ var swipeGallery = {
 
 	},
 	touchEnd : function(e){
+		var v = swipeGallery.v,
+			action;
 		console.log(e);
-
-		swipeGallery.regPos();
+		if( e.distanceX > v.targetWidth/2 ){
+			action = e.directionX;
+		}else{
+			action = 'stop';
+		}
+		//swipeGallery.regPos();
+		swipeGallery.move(action);
 
 	},
 	touchCancel : function(e){
-		console.log(e);
+		//console.log(e);
 	},
 	regPos : function(){
 		var v = swipeGallery.v,
@@ -90,7 +99,7 @@ var swipeGallery = {
 		v.targetWidth = v.target.width();
 		v.targetHeight = v.target.outerHeight();
 
-		swipeGallery.move({
+		swipeGallery.drag({
 			left: -1 * v.targetWidth,
 			now: 0,
 			right: v.targetWidth
@@ -98,13 +107,52 @@ var swipeGallery = {
 
 		swipeGallery.regPos();
 	},
-	move : function(pos){
+	drag : function(pos){
 		var v = swipeGallery.v,
 			item = swipeGallery.viewItem();
 
 		item.left.css('left', pos.left );
 		v.nowItem.css('left', pos.now );
 		item.right.css('left', pos.right );
+	},
+	move : function(action){
+		var v = swipeGallery.v,
+			item = swipeGallery.viewItem(),
+			pos = {},
+			animateOpt = {
+				duration: 200,
+				easing: 'easeOutCubic',
+				complete: animateComplete
+			};
+
+		switch (action) {
+			case 'left' :
+				pos.left = -1 * (v.targetWidth * 2);
+				pos.now = -1 * v.targetWidth;
+				pos.right = 0;
+				break;
+			case 'right' :
+				pos.left = 0;
+				pos.now = v.targetWidth;
+				pos.right = v.targetWidth * 2;
+				break;
+			case 'stop' :
+				pos.left = -1 * v.targetWidth;
+				pos.now = 0;
+				pos.right = v.targetWidth;
+				break;
+		}
+
+		item.left.animate({'left': pos.left},animateOpt);
+		v.nowItem.animate({'left': pos.now},animateOpt);
+		item.right.animate({'left': pos.right},animateOpt);
+
+		function animateComplete(){
+
+		}
+			v.numNow = ( action == 'left' ) ? item.right.index() : item.left.index();
+			console.log(v.numNow)
+			v.nowItem = v.targetItem.eq(v.numNow);
 	},
 	viewItem : function(){
 		var v = swipeGallery.v,
@@ -114,12 +162,7 @@ var swipeGallery = {
 
 		return returns;
 	},
-	convertCss : function(action){
-		// if(action == 'left') {
-		// 	return {'left'};
-		// }
-	},
-	checkTransform : function(){
+	defaultPos : function(){
 
 	}
 }
