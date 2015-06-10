@@ -1,0 +1,31 @@
+{
+	"name": "caw_swipe",
+	"version": "1.0.0",
+	"description": "swipe plugin",
+	"main": "swipe.html",
+	"scripts": {
+    	"start": "gulp"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/seunghwansbae/caw_swipe.git"
+	},
+	"keywords": [
+		"swipe"
+	],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/seunghwansbae/caw_swipe/issues"
+	},
+	"homepage": "https://github.com/seunghwansbae/caw_swipe",
+	"devDependencies" : {
+		"gulp": "^3.8.10",
+		"del": "^1.1.0",
+		"gulp-less": "^3.0.3",
+		"gulp-minify-css": "^1.1.6",
+		"gulp-rename": "^1.0.3",
+		"gulp-plumber" : "^1.0.1"
+	}
+}
+
