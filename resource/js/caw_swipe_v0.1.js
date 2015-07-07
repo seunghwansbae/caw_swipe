@@ -158,9 +158,3 @@ $.prototype.swipe = function( param ){
 	}
 
 };
-
-
-
-
-
-

@@ -1,10 +1,14 @@
 //modules
-var gulp = require('gulp'), //걸프
+var gulp = require('gulp'),
+	//$ = require('gulp-load-plugins');
 	lessCss = require('gulp-less'), //LESS 컴파일
 	minifyCss = require('gulp-minify-css'), // css 압축
+	uglifyJs = require('gulp-uglify'), //js 압축
+	optimizeImg = require('gulp-imagemin'), //이미지 압축
 	del = require('del'), // 파일,디렉토리 삭제
 	rename = require('gulp-rename'), //파일 이름 변경
-	plumber = require('gulp-plumber'); //에러가 나서 프로세스가 종료되는 것을 방지
+	plumber = require('gulp-plumber'), //에러가 나서 프로세스가 종료되는 것을 방지
+	browserSync = require('browser-sync').create(); //브라우저싱크 서버
 
 //option
 var options = {
@@ -20,26 +24,22 @@ var options = {
 	}
 };
 
-
 // Default working
-gulp.task('default', ['clean', 'lessCss', 'watch']);
+gulp.task('default', ['clean', 'lessCss', 'watch', 'uglifyJs', 'uglifyJsCopy', 'optimizeImg']);
 
-/* watch 변화를 감지 */
-gulp.task('watch', ['clean'], function() {
-	var watchOpt = {
-		interval: 500
-	};
-	gulp.watch('less/**/*.less', watchOpt, ['lessCss']);
-});
 
-/* 폴더 및 파일 제거 - del module */
+// remove file & directory
 gulp.task('clean', function() {
-	del(['css/*']);
+	del([
+		'css/*',
+		'js/*',
+		'imgs/*'
+	]);
 });
 
-/* less 파일 변환 및 압축 */
+// less compile & compress
 gulp.task('lessCss', function() {
-	return gulp.src(['less/*.less','!less/_*.less'])
+	return gulp.src(['resource/less/*.less','!resource/less/_*.less'])
 				.pipe(plumber())
 				.pipe(lessCss())
 				.pipe(gulp.dest('css/'))
@@ -48,6 +48,58 @@ gulp.task('lessCss', function() {
 					suffix: '.min',
 					extname: '.css'
 				}))
-				.pipe(gulp.dest('css/'));
+				.pipe(gulp.dest('css/'))
+				.pipe(browserSync.reload({stream: true}));
 });
 
+// js file compress
+gulp.task('uglifyJs', function() {
+	return gulp.src(['resource/js/*.js','!resource/js/_*.js','!resource/js/*min.js'])
+				.pipe(plumber())
+				.pipe(uglifyJs())
+				.pipe(rename({
+					suffix: '.min',
+					extname: '.js'
+				}))
+				.pipe(gulp.dest('js/'))
+				.pipe(browserSync.reload({stream: true}));
+});
+
+// image file compress
+gulp.task('optimizeImg', function() {
+	return gulp.src(['resource/imgs/*.{png,jpg,gif}'])
+				.pipe(plumber())
+				.pipe(optimizeImg({
+					optmizationLevel: 3,
+					progressive: true,
+					interlaced: true
+				}))
+				.pipe(gulp.dest('imgs/'))
+				.pipe(browserSync.reload({stream: true}));
+});
+
+// file copy
+gulp.task('uglifyJsCopy', function() {
+	return gulp.src(['resource/js/*min.js'])
+			   .pipe(gulp.dest('js/'))
+			   .pipe(browserSync.reload({stream: true}));
+
+});
+
+
+// watch file
+gulp.task('watch', ['clean'], function() {
+	var watchOpt = {
+		interval: 500
+	};
+    browserSync.init({
+        server: {
+            baseDir: "./",
+			directory: true,
+			index: "swipe.html"
+        }
+    });
+	gulp.watch('resource/less/**/*.less', watchOpt, ['lessCss']);
+	gulp.watch('resource/js/**/*.js', watchOpt, ['uglifyJs','uglifyJsCopy']);
+	gulp.watch('resource/imgs/**/*.{png,jpg,gif}', watchOpt, ['optimizeImg']);
+});

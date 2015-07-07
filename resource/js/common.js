@@ -163,7 +163,7 @@ var swipeGallery = {
 		return returns;
 	},
 	defaultPos : function(){
-
+		
 	}
 }
 
