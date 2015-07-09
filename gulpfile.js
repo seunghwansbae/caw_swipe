@@ -39,6 +39,10 @@ gulp.task('lessCss', function() {
 				.pipe(plugins.plumber())
 				.pipe(plugins.sourcemaps.init())
 					.pipe(plugins.less())
+					.pipe(plugins.autoprefixer({
+						browsers : ['last 10 versions', "> 1%", 'ie 7', 'ie 8', 'ie 9'],
+						cascade : true
+					}))
 					.pipe(gulp.dest('root/css/'))
 					.pipe(plugins.minifyCss(options.minifyCss))
 					.pipe(plugins.rename({
@@ -47,7 +51,7 @@ gulp.task('lessCss', function() {
 					}))
 				.pipe(plugins.sourcemaps.write('../maps/'))
 				.pipe(gulp.dest('root/css/'))
- 			   .pipe(browserSync.reload({stream: true}));
+ 			    .pipe(reLoading());
 });
 
 // js file compress
@@ -62,7 +66,7 @@ gulp.task('uglifyJs', function() {
 					}))
 				.pipe(plugins.sourcemaps.write('../maps/'))
 				.pipe(gulp.dest('root/js/'))
- 			   .pipe(browserSync.reload({stream: true}));
+ 			    .pipe(reLoading());
 });
 
 // image file compress
@@ -75,14 +79,14 @@ gulp.task('optimizeImg', function() {
 					interlaced: true
 				}))
 				.pipe(gulp.dest('root/imgs/'))
- 			   .pipe(browserSync.reload({stream: true}));
+ 			    .pipe(reLoading());
 });
 
 // file copy
 gulp.task('uglifyJsCopy', function() {
 	return gulp.src(['resource/js/*min.js'])
 			   .pipe(gulp.dest('root/js/'))
-			  .pipe(browserSync.reload({stream: true}));
+			   .pipe(reLoading());
 
 });
 
@@ -120,6 +124,14 @@ gulp.task('browserSync',function(){
 		port : 5000
 	});
 });
+
+function reLoading(){
+	//브라우저 싱크가 활성화일때 리로드실행
+	if( browserSync.active ){
+		return browserSync.reload({stream: true});
+	}
+	return plugins.util.noop(); //아무것도 하지않는 스트림을 리턴
+}
 
 //default step
 gulp.task('default', function(callback) {
