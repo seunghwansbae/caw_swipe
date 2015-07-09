@@ -1,7 +1,8 @@
 
 $.prototype.swipe = function( param ){
 	/* prototype add */
-	var target = this, //object
+
+	var _this = this, //object
 		proto = this.__proto__,
 		factor = {
 			returnstart : function(){}, //터치스타트,마우스 다운 함수
@@ -13,10 +14,8 @@ $.prototype.swipe = function( param ){
 		},
 		v = {}; //value object
 
-	init();
-
 	/* setting */
-	function init(){
+	this.init = function(){
 		//객체의 초기상태
 		proto.swipeState = 'end';
 
@@ -27,20 +26,20 @@ $.prototype.swipe = function( param ){
 		v.stateY = null; //진행중 좌표 Y
 		v.endX = null; //종료시 좌표 X
 		v.endY = null; //종료시 좌표 Y
-		v.eventType = eventTypeCheck(); //이벤트 타입 지정 ( touch, mouse )
+		v.eventType = _this.eventTypeCheck(); //이벤트 타입 지정 ( touch, mouse )
 
 		/* 인자 확장 */
 		factor = $.extend(factor,param);
 
 		/* create event */
-		target.on(v.eventType.start , actionBegin)
-			  .on(v.eventType.move , actionMove)
-			  .on(v.eventType.end , actionEnd);
-		if(v.eventType.touch) target.on(v.eventType.cancel , proto.swipeCancel); //터치가 가능할때만 터치캔슬 이벤트 적용
+		_this.on(v.eventType.start , _this.actionBegin)
+			  .on(v.eventType.move , _this.actionMove)
+			  .on(v.eventType.end , _this.actionEnd);
+		if(v.eventType.touch) _this.on(v.eventType.cancel , proto.swipeCancel); //터치가 가능할때만 터치캔슬 이벤트 적용
 	}
 
 	/* start */
-	function actionBegin(e){
+	this.actionBegin = function(e){
 		var returns = {},
 			useEvent = (v.eventType.touch) ? e.originalEvent.touches[0] : e;
 
@@ -55,7 +54,7 @@ $.prototype.swipe = function( param ){
 	}
 
 	/* move */
-	function actionMove(e){
+	this.actionMove = function(e){
 		var returns = {
 				x : null,
 				y : null,
@@ -87,8 +86,8 @@ $.prototype.swipe = function( param ){
 
 		returns.x = v.stateX = useEvent.pageX;
 		returns.y = v.stateY = useEvent.pageY;
-		returns.distanceX = distance(v.stateX, v.startX, false);
-		returns.distanceY = distance(v.stateY, v.startY, false);
+		returns.distanceX = _this.distance(v.stateX, v.startX, false);
+		returns.distanceY = _this.distance(v.stateY, v.startY, false);
 
 		factor.returnmove( returns );
 
@@ -96,7 +95,7 @@ $.prototype.swipe = function( param ){
 	}
 
 	/* end */
-	function actionEnd(e){
+	this.actionEnd = function(e){
 		var returns = {};
 
 		if(proto.swipeState == 'end') return false;
@@ -104,8 +103,8 @@ $.prototype.swipe = function( param ){
 
 		returns.x = v.endX = v.stateX;
 		returns.y = v.endY = v.stateY;
-		returns.distanceX = distance(v.endX, v.startX, true);
-		returns.distanceY = distance(v.endY, v.startY, true);
+		returns.distanceX = _this.distance(v.endX, v.startX, true);
+		returns.distanceY = _this.distance(v.endY, v.startY, true);
 
 		if(returns.distanceX <= factor.minDistanceX || v.startX === v.stateX){
 			returns.directionX = 'stop';
@@ -136,12 +135,13 @@ $.prototype.swipe = function( param ){
 	}
 
 	/* 움직인 거리를 리턴 */
-	function distance(start,end,math){
+	this.distance = function(start,end,math){
 		var returns = (math) ? Math.abs(start - end) : start - end;
 		return returns;
 	}
 
-	function eventTypeCheck(){
+	/* 브라우저 이벤트 타입 리턴 */
+	this.eventTypeCheck = function(){
 		var re = {};
 
 		re = {
@@ -156,5 +156,7 @@ $.prototype.swipe = function( param ){
 
 		return re;
 	}
+
+	this.init();
 
 };
