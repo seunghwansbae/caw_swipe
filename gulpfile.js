@@ -7,7 +7,8 @@ var gulp = require('gulp'),
 	runSequence = require('run-sequence'),
 	bower = require('gulp-bower'),
 	del = require('del'),
-	browserSync = require('browser-sync').create();
+	browserSync = require('browser-sync').create(),
+	browserslist = require('browserslist');
 
 //option
 var options = {
@@ -39,10 +40,11 @@ gulp.task('lessCss', function() {
 				.pipe(plugins.plumber())
 				.pipe(plugins.sourcemaps.init())
 					.pipe(plugins.less())
-					.pipe(plugins.autoprefixer({
-						browsers : ['last 10 versions', "> 1%", 'ie 7', 'ie 8', 'ie 9'],
-						cascade : true
-					}))
+					.pipe(plugins.autoprefixer(
+							browserslist('last 2 version',' > 30%','Chrome','Safari', 'ie 7-9','iOS 7','Opera','Firefox'),
+							{ cascade : true}
+						)
+					)
 					.pipe(gulp.dest('root/css/'))
 					.pipe(plugins.minifyCss(options.minifyCss))
 					.pipe(plugins.rename({
