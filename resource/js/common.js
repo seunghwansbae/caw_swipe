@@ -163,7 +163,7 @@ var swipeGallery = {
 		return returns;
 	},
 	defaultPos : function(){
-		
+
 	}
 }
 
@@ -171,3 +171,62 @@ var swipeGallery = {
 $(document).ready(function(){
 	swipeGallery.init( $('#gallery') );
 });
+
+
+
+/* test */
+var originObj = function(){
+	this.testNum = 0;
+	console.log(this);
+}
+
+originObj.prototype.add = function(num){
+	this.testNum += num;
+};
+
+var tmpObj01 = new originObj();
+var tmpObj02 = new originObj();
+
+tmpObj01.add(1);
+tmpObj02.add(2);
+
+console.log('obj1 value : '+tmpObj01.testNum+'     obj2 value : '+tmpObj02.testNum);
+
+
+
+
+/*
+http://www.nextree.co.kr/p7323/
+(5) prototypal한 방식의 재사용
+
+이 방법은 Object.create()를 사용하여 객체를 생성과 동시에 프로토타입객체를 지정합니다.
+이 함수는 첫 번째 매개변수는 부모객체로 사용할 객체를 넘겨주고,
+두 번째 매개변수는 선택적 매개변수로써 반환되는 자식객체의 속성에 추가되는 부분입니다.
+이 함수를 사용함으로 써 객체 생성과 동시에 부모객체를 지정하여 코드의 재활용을 간단하게 구현할 수 있습니다.
+
+*/
+var person = {
+    type : "인간",
+    getType : function(){
+        return this.type;
+    },
+    getName : function(){
+        return this.name;
+    }
+};
+
+var joon = Object.create(person);
+joon.name = "혁준";
+person.type = "미친놈";
+console.log(joon)
+console.log(joon.getType());  // 인간
+console.log(joon.getName());  // 혁준
+
+
+/*
+	위 소스 1라인에서 부모 객체에 해당하는 person을 객체 리터럴 방식으로 생성했습니다.
+	11라인에서 자식 객체 joon은 Object.create() 함수를 이용하여 첫 번째 매개변수로 person을 넘겨받아
+	joon 객체를 생성하였습니다. 한 줄로 객체를 생성함과 동시에 부모객체의 속성도 모두 물려받았습니다. 위의 1 ~ 4번에 해당하는
+	classical 방식보다 간단하면서 여러 가지 상황을 생각할 필요도 없습니다. JavaScript에서는 new 연산자와 함수를 통해 생성한
+	객체를 사용하는 classical 방식보다 prototypal 방식을 더 선호합니다.
+*/
