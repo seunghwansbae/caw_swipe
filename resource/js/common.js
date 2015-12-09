@@ -5,6 +5,7 @@ var swipeGallery = {
 	v : {},
 
 	init : function(){
+		
 		var v = swipeGallery.v;
 
 		v.target = $('#gallery');

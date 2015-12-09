@@ -32,9 +32,12 @@
 		"gulp-uglify" : "^1.2.0",
 		"gulp-load-plugins" : "^1.0.0-rc.1",
 		"gulp-sourcemaps": "^1.5.2",
-		"gulp-bower" : "^0.0.10",
 		"gulp-util" : "^3.0.6",
 		"gulp-autoprefixer" : "^2.3.1",
-		"browserslist" : "0.5.0"
+		"browserslist" : "0.5.0",
+		"gulp-if" : "2.0.0",
+		"gulp-htmlhint": "^0.3.0",
+		"gulp-lb-include": "^0.3.1",
+		"gulp-filter": "^3.0.1"
 	}
 }

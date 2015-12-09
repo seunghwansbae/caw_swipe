@@ -5,7 +5,6 @@
 var gulp = require('gulp'),
 	plugins = require('gulp-load-plugins')(),
 	runSequence = require('run-sequence'),
-	bower = require('gulp-bower'),
 	del = require('del'),
 	browserSync = require('browser-sync').create(),
 	browserslist = require('browserslist');
@@ -90,35 +89,41 @@ gulp.task('optimizeImg', function() {
 		.pipe(reLoading());
 });
 
-//package manager
-gulp.task('bower',function(){
-	bower('./lib');
-	gulp.src([
-			'lib/jquery-easing-original/jquery.easing.min.js'
-		])
-		.pipe(gulp.dest('root/js/'));
 
-	gulp.src(['lib/jquery/dist/jquery.js'])
-		.pipe(plugins.sourcemaps.init())
-			.pipe(plugins.uglify())
-			.pipe(plugins.rename({
-				suffix: '.min',
-				extname: '.js'
-			}))
-		.pipe(plugins.sourcemaps.write('../maps/'))
-		.pipe(gulp.dest('root/js/'))
+// html build, html hint
+gulp.task('htmlBuild', function () {
+	return gulp.src(['resource/html/**/*.html'])
+		.pipe(plugins.plumber())
+		.pipe(plugins.lbInclude({
+			root: 'resource/html/'
+		}))
+		.pipe(plugins.filter([
+			'**/*',
+			//'!_*',
+			//'!_*/**/*',
+			'!include/**/*.html'
+		]))
+		.pipe(plugins.htmlhint({
+			htmlhintrc: '.htmlhintrc'
+		}))
+		.pipe(plugins.htmlhint.reporter())
+		.pipe(gulp.dest('root/'))
+		.pipe(plugins.if(browserSync.active, browserSync.stream({
+			once: true
+		})));
 });
 
+
 // start
-gulp.task('start', ['lessCss', 'uglifyJs', 'optimizeImg'], function() {
+gulp.task('start', ['lessCss', 'uglifyJs', 'optimizeImg', 'htmlBuild'], function() {
 	var watchOpt = {
 		interval: 500
 	};
 
 	gulp.watch('resource/less/**/*.less', watchOpt, ['lessCss']);
-	gulp.watch('resource/js/**/*.js', watchOpt, ['uglifyJs'
-]);
+	gulp.watch('resource/js/**/*.js', watchOpt, ['uglifyJs']);
 	gulp.watch('resource/imgs/**/*.{png,jpg,gif}', watchOpt, ['optimizeImg']);
+	gulp.watch('resource/html/**/*.html', watchOpt, ['htmlBuild']);
 });
 
 gulp.task('browserSync',function(){
@@ -145,5 +150,5 @@ function reLoading(){
 
 //default step
 gulp.task('default', function(callback) {
-	runSequence('clean','start','bower','browserSync',callback);
+	runSequence('clean','start','browserSync',callback);
 });

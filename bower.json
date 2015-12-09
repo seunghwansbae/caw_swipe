@@ -1,7 +1,0 @@
-{
-    "name": "caw_swipe",
-    "dependencies": {
-        "jQuery": "~1.11.0",
-        "jquery-easing-original": ""
-    }
-}
