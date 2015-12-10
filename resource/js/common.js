@@ -70,7 +70,7 @@ var swipeGallery = {
 	touchEnd : function(e){
 		var v = swipeGallery.v,
 			action;
-		console.log(e);
+		//console.log(e);
 		if( e.distanceX > v.targetWidth/2 ){
 			action = e.directionX;
 		}else{
@@ -152,7 +152,7 @@ var swipeGallery = {
 
 		}
 			v.numNow = ( action == 'left' ) ? item.right.index() : item.left.index();
-			console.log(v.numNow)
+			//console.log(v.numNow)
 			v.nowItem = v.targetItem.eq(v.numNow);
 	},
 	viewItem : function(){
@@ -176,9 +176,9 @@ $(document).ready(function(){
 
 
 /* test */
-var originObj = function(){
+/*var originObj = function(){
 	this.testNum = 0;
-	console.log(this);
+	//console.log(this);
 }
 
 originObj.prototype.add = function(num){
@@ -190,8 +190,8 @@ var tmpObj02 = new originObj();
 
 tmpObj01.add(1);
 tmpObj02.add(2);
-
-console.log('obj1 value : '+tmpObj01.testNum+'     obj2 value : '+tmpObj02.testNum);
+*/
+//console.log('obj1 value : '+tmpObj01.testNum+'     obj2 value : '+tmpObj02.testNum);
 
 
 
@@ -206,7 +206,7 @@ http://www.nextree.co.kr/p7323/
 이 함수를 사용함으로 써 객체 생성과 동시에 부모객체를 지정하여 코드의 재활용을 간단하게 구현할 수 있습니다.
 
 */
-var person = {
+/*var person = {
     type : "인간",
     getType : function(){
         return this.type;
@@ -221,7 +221,7 @@ joon.name = "혁준";
 person.type = "미친놈";
 console.log(joon)
 console.log(joon.getType());  // 인간
-console.log(joon.getName());  // 혁준
+console.log(joon.getName());  // 혁준*/
 
 
 /*
