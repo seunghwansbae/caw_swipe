@@ -104,7 +104,7 @@ gulp.task('htmlBuild', function () {
 			htmlhintrc: '.htmlhintrc'
 		}))
 		.pipe(plugins.htmlhint.reporter())
-		.pipe(gulp.dest('root/'))
+		.pipe(gulp.dest('root/html/'))
 		.pipe(plugins.if(browserSync.active, browserSync.stream({
 			once: true
 		})));
