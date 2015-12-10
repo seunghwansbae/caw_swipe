@@ -26,10 +26,7 @@ var options = {
 // remove file & directory
 gulp.task('clean', function() {
 	del([
-		'root/css/*',
-		'root/js/*',
-		'root/imgs/*',
-		'root/maps/*'
+		'root'
 	]);
 });
 
