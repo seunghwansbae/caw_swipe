@@ -48,8 +48,8 @@ var swipeGallery = {
 		});
 	},
 	touchStart : function(e){
-		//console.log(e);
-
+		// console.log(e);
+		// console.log(this)
 		var v = swipeGallery.v;
 
 		swipeGallery.regPos();
@@ -70,15 +70,13 @@ var swipeGallery = {
 	touchEnd : function(e){
 		var v = swipeGallery.v,
 			action;
-		//console.log(e);
-		if( e.distanceX > v.targetWidth/2 ){
+		console.log(e);
+		if( e.distanceX > 50 ){
 			action = e.directionX;
+			swipeGallery.move(action);
 		}else{
 			action = 'stop';
 		}
-		//swipeGallery.regPos();
-		swipeGallery.move(action);
-
 	},
 	touchCancel : function(e){
 		//console.log(e);
@@ -151,9 +149,9 @@ var swipeGallery = {
 		function animateComplete(){
 
 		}
-			v.numNow = ( action == 'left' ) ? item.right.index() : item.left.index();
-			//console.log(v.numNow)
-			v.nowItem = v.targetItem.eq(v.numNow);
+		v.numNow = ( action == 'left' ) ? item.right.index() : item.left.index();
+		//console.log(v.numNow)
+		v.nowItem = v.targetItem.eq(v.numNow);
 	},
 	viewItem : function(){
 		var v = swipeGallery.v,
