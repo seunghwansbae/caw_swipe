@@ -1,11 +1,11 @@
 /*
 	v 1.0 작업중
 	이동했을경우 클릭함수 실행 혹은 비실행 처리 해야됨 < 처리된듯
-	
+
 	터치 엔드시 리턴값에 가속도 리턴
 	스크롤 방향 값 지정으로 브라우저 스크롤 막기
 
-
+_this.find('img').on('dragstart',function(){ 이 함수를 네이티브로 변경해야함
 
 
 
@@ -148,6 +148,9 @@ $.fn.swipe = function( param ){
 	}
 
 	this.addClickEvent = function(){
+		_this.find('img').on('dragstart',function(){
+			return false;
+		});
 		if(!v.eventType.touch){
 			if(document.addEventListener) {   // all browsers except IE before version 9
 	            document.addEventListener("click", returnFalseEvt, false);
