@@ -1,4 +1,4 @@
-/*
+/* cancel
 	v 1.0 작업중
 		이동했을경우 클릭함수 실행 혹은 비실행 처리 해야됨 < 처리된듯
 		_this.find('img').on('dragstart',function(){ 이 함수를 네이티브로 변경해야함 << 처리된듯

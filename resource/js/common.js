@@ -1,4 +1,4 @@
-
+//cancel
 
 
 var swipeGallery = {
