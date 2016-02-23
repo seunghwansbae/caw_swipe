@@ -19,6 +19,7 @@
 			v.targetItemPos = {};
 
 			/* reset */
+			
 			v.targetItem.css('left','-10000px');
 			v.targetItem.eq(v.numNow).css('left','0');
 
