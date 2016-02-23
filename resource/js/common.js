@@ -36,6 +36,8 @@
 				returncancel : function(), // 터치,클릭,이동 취소 함수, 최소 이동거리를 충족하지 못하고 mouseUP이 되는경우 취소 함수 실행, $(object).swipeCancel() < 이와 깉이 실행시 작동
 				minDistanceX : number // 최소로 이동해야하는 거리 (default:100px) 해당 수치만큼 이동하지 않을경우 returnend 실행에서 directionX나 directionY의 값은 stop 리턴
 				minDistanceY : number // 최소 이동해야하는 거리 y
+				minClickDistance : 10,
+				pageScroll : 'none' // vertical, horizontal, none 스크롤 방향
 
 			*/
 			v.target.swipe({
@@ -44,19 +46,30 @@
 				returnend : swipeGallery.touchEnd,
 				returncancel : swipeGallery.touchCancel,
 				minDistanceX : 100,
-				minDistanceY : 100
+				minDistanceY : 100,
+				minClickDistance : 10,
+				pageScroll : 'vertical'
 			});
 		},
 		touchStart : function(e){
-			// console.log(e);
-			// console.log(this)
+			/*
+				e.x : 현재위치(px)
+				e.y : 현재위치(px)
+			*/
 			var v = swipeGallery.v;
 
 			swipeGallery.regPos();
 			v.nowItem = $(v.targetItem.eq(v.numNow));
 		},
 		touchMove : function(e){
-
+			/*
+				e.directionX: 이동방향(text)
+				e.directionY: 이동방향(text)
+				e.distanceX: 이동거리(px)
+				e.distanceY: 이동거리(px)
+				e.x: 현재위치(px)
+				e.y: 햔제위치(px)
+			*/
 			var v = swipeGallery.v,
 				posX = v.targetItemPos[v.numNow].x + e.distanceX;
 
@@ -68,9 +81,19 @@
 
 		},
 		touchEnd : function(e){
+			/*
+				e.directionX: 이동방향(text)
+				e.directionY: 이동방향(text)
+				e.distanceX: 이동거리(px)
+				e.distanceY: 이동거리(px)
+				e.speedX: 이동속도(px/ms)
+				e.speedY: 이동속도(px/ms)
+				e.x: 마지막 위치(px)
+				e.y: 마지막 위치(px)
+			*/
 			var v = swipeGallery.v,
 				action;
-			console.log(e);
+
 			if( e.distanceX > 50 ){
 				action = e.directionX;
 				swipeGallery.move(action);

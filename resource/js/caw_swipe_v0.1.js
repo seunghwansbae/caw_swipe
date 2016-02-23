@@ -2,9 +2,9 @@
 	v 1.0 작업중
 		이동했을경우 클릭함수 실행 혹은 비실행 처리 해야됨 < 처리된듯
 		_this.find('img').on('dragstart',function(){ 이 함수를 네이티브로 변경해야함 << 처리된듯
-
-	터치 엔드시 리턴값에 가속도 리턴
-	스크롤 방향 값 지정으로 브라우저 스크롤 막기
+		터치 엔드시 리턴값에 속도 리턴 < 처리함
+	
+	스와이프 방향 값 지정으로 브라우저 스크롤 막기
 
 
 
@@ -21,7 +21,8 @@ $.fn.swipe = function( param ){
 			returncancel : function(){}, //터치캔슬 함수
 			minDistanceX : 100, //리턴값에 방향이 'stop'이 되는 최소 이동거리 x
 			minDistanceY : 100, //리턴값에 방향이 'stop'이 되는 최소 이동거리 y
-			minClickDistance : 10 //클릭이벤트로 넘어가는 이동거리
+			minClickDistance : 10, //클릭이벤트로 넘어가는 이동거리
+			pageScroll : 'none' //비활성화할 터치 스크롤 방향 vertical, horizontal, none
 		},
 		v = {}; //좌표 값 및 필요 변수 생성
 		v.startX = null; //시작 좌표 X
@@ -31,6 +32,8 @@ $.fn.swipe = function( param ){
 		v.endX = null; //종료시 좌표 X
 		v.endY = null; //종료시 좌표 Y
 		v.eventType = null; //이벤트 타입 지정 ( touch, mouse )
+		v.removeClickEvent = false; //클릭이벤트를 지울것인지 여부
+		v.moveTime = 0; //이동시간
 		_this.swipeState = 'end'; //객체의 초기상태
 
 	/* setting */
@@ -48,7 +51,7 @@ $.fn.swipe = function( param ){
 
 		//움직였을때 클릭이벤트
 		_this.addClickEvent();
-	}
+	};
 
 	/* start */
 	this.actionStart = function(e){
@@ -56,17 +59,16 @@ $.fn.swipe = function( param ){
 			useEvent = (v.eventType.touch) ? e.originalEvent.touches[0] : e;
 
 		_this.swipeState = 'start';
-
 		returns.x = v.startX = v.stateX = useEvent.pageX;
 		returns.y = v.startY = v.stateY = useEvent.pageY;
-
 		factor.returnstart( returns );
-		
+		_this.startTime();
+
 		//마우스 다운 이벤트 발생시에 클릭이벤트
 		if( !v.eventType.touch ){
 			return false;
 		}
-	}
+	};
 
 	/* move */
 	this.actionMove = function(e){
@@ -112,9 +114,19 @@ $.fn.swipe = function( param ){
 		if( !v.eventType.touch ){
 			return false;
 		}else{
-			e.preventDefault();
+			if( factor.pageScroll === 'vertical' ){
+				document.addEventListener('touchmove',function(e){
+					e.preventDefault();
+				});
+			}else if( factor.pageScroll === 'horizontal' ){
+				document.addEventListener('touchmove',function(e){
+					e.preventDefault();
+				});
+			}else if( factor.pageScroll === 'none' ){
+				e.preventDefault();
+			}
 		}
-	}
+	};
 
 	/* end */
 	this.actionEnd = function(e){
@@ -144,15 +156,20 @@ $.fn.swipe = function( param ){
 			returns.directionY = 'up';
 		}
 
+		//이동속도 계산
+		returns.speedX = returns.distanceX / v.moveTime;
+		returns.speedY = returns.distanceY / v.moveTime;
+		_this.endTime();
+
 		factor.returnend( returns );
 
 		//마우스업, 터치엔드 시 클릭이벤트를 없앨것인지 변수값 설정
 		if(returns.distanceX >= factor.minClickDistance || returns.distanceY >= factor.minClickDistance){
-			_this.removeClickEvent = true;
+			v.removeClickEvent = true;
+		}else{
+			e.target.click();
 		}
-	}
-
-	this.removeClickEvent = false;
+	};
 
 	this.addClickEvent = function(){
 		var targetEl = _this.get(0);
@@ -167,9 +184,10 @@ $.fn.swipe = function( param ){
 	        }
 	        
 	        function defaultEvent(e){
-	        	if( _this.removeClickEvent === true ){
+	        	console.log(e.target)
+	        	if( v.removeClickEvent === true ){
 		        	e.preventDefault();
-		        	_this.removeClickEvent = false;
+		        	v.removeClickEvent = false;
 	        	}
 	        }
 	        function falseEvent(e){
@@ -185,19 +203,21 @@ $.fn.swipe = function( param ){
 	/* cancel */
 	this.swipeCancel = function(){
 		_this.swipeState = 'end';
+		this.endTime();
 		factor.returncancel();
 		return false;
-	}
+	};
 
 	/* 움직인 거리를 리턴 */
 	this.distance = function(start,end,math){
 		var returns = (math) ? Math.abs(start - end) : start - end;
 		return returns;
-	}
+	};
 
 	/* 브라우저 이벤트 타입 리턴 */
 	this.eventTypeCheck = function(){
-		var re = {};
+		var re = {},
+			isTouch;
 		re = {
 			touch : isTouch = 'ontouchstart' in window,
 			pointer10 : window.navigator.msPointerEnabled && !window.navigator.pointerEnabled,
@@ -209,7 +229,22 @@ $.fn.swipe = function( param ){
 		};
 
 		return re;
-	}
+	};
+
+	//속도 계산을 위한 시간 체크
+	this.moveInterval = null;
+
+	this.startTime = function(){
+		this.moveInterval = setInterval(function(){
+			v.moveTime += 1;
+		});
+	};
+
+	this.endTime = function(){
+		clearInterval(this.moveInterval)
+		this.moveInterval = null;
+		v.moveTime = 0;
+	};
 
 	this.init();
 
