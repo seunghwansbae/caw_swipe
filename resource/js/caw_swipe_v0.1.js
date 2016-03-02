@@ -51,6 +51,9 @@ $.fn.swipe = function( param ){
 
 		//움직였을때 클릭이벤트
 		_this.addClickEvent();
+
+		//터치 무브일때 스크롤 제어 참조 실행함수
+		_this.touchmoveRemove();
 	};
 
 	/* start */
@@ -80,7 +83,9 @@ $.fn.swipe = function( param ){
 				directionX : null,
 				directionY : null
 			},
-			useEvent = (v.eventType.touch) ? e.originalEvent.touches[0] : e;
+			useEvent = (v.eventType.touch) ? e.originalEvent.touches[0] : e,
+			mathDtcX,
+			mathDtcY;
 
 		if(_this.swipeState === 'end') {
 			return false;
@@ -108,24 +113,55 @@ $.fn.swipe = function( param ){
 		returns.distanceX = _this.distance(v.stateX, v.startX, false);
 		returns.distanceY = _this.distance(v.stateY, v.startY, false);
 
-		factor.returnmove( returns );
 
 		//마우스 무브일경우 이미지 복사기능 작동 방지
+		mathDtcX = Math.abs(returns.distanceX);
+		mathDtcY = Math.abs(returns.distanceY);
+
 		if( !v.eventType.touch ){
+			factor.returnmove( returns );
 			return false;
 		}else{
-			if( factor.pageScroll === 'vertical' ){
-				document.addEventListener('touchmove',function(e){
-					e.preventDefault();
-				});
-			}else if( factor.pageScroll === 'horizontal' ){
-				document.addEventListener('touchmove',function(e){
-					e.preventDefault();
-				});
-			}else if( factor.pageScroll === 'none' ){
-				e.preventDefault();
+			if( factor.pageScroll === 'vertical' && _this.horizontalScroll === null ){
+				if( mathDtcX > 5 || mathDtcY > 5 && mathDtcX > mathDtcY ){
+					_this.horizontalScroll = true;
+				}else if( mathDtcX < 5 || mathDtcY < 5 && mathDtcX < mathDtcY ){
+					_this.horizontalScroll = false;
+				}
+			}else if( factor.pageScroll === 'horizontal'  && _this.verticalScroll === null ){
+				if( mathDtcY > 5 || mathDtcX > 5 && mathDtcY > mathDtcX ){
+					_this.verticalScroll = true;
+				}else if( mathDtcY < 5 || mathDtcX < 5 && mathDtcY < mathDtcX ){
+					_this.verticalScroll = false;
+				}
 			}
+
+			//옵션으로 적용된 스크롤 방향으로 스와이핑 되지 않을때만 이동 함수처리
+			if( (_this.horizontalScroll === true && factor.pageScroll === 'vertical') ||
+				(_this.verticalScroll === true && factor.pageScroll === 'horizontal') ||
+				factor.pageScroll === 'none' ){
+
+					factor.returnmove( returns );
+			}
+
 		}
+
+	};
+
+	this.touchmoveRemove = function(){
+		if(v.eventType.touch){
+			document.addEventListener('touchmove',function(e){
+				if(  _this.horizontalScroll === true || _this.verticalScroll === true ){
+					console.log(11)
+					e.preventDefault();
+				}
+			});
+		}
+	}
+	this.verticalScroll = null;
+	this.horizontalScroll = null;
+	this.resetScrollDirection = function(){
+		this.verticalScroll = this.horizontalScroll = null;
 	};
 
 	/* end */
@@ -167,8 +203,11 @@ $.fn.swipe = function( param ){
 		if(returns.distanceX >= factor.minClickDistance || returns.distanceY >= factor.minClickDistance){
 			v.removeClickEvent = true;
 		}else{
-			e.target.click();
+			console.log('클릭됨')
+			//e.target.click();
 		}
+
+		_this.resetScrollDirection();
 	};
 
 	this.addClickEvent = function(){
@@ -184,7 +223,7 @@ $.fn.swipe = function( param ){
 	        }
 	        
 	        function defaultEvent(e){
-	        	console.log(e.target)
+	        	//console.log(e.target)
 	        	if( v.removeClickEvent === true ){
 		        	e.preventDefault();
 		        	v.removeClickEvent = false;

@@ -38,14 +38,14 @@
 				minDistanceX : number // 최소로 이동해야하는 거리 (default:100px) 해당 수치만큼 이동하지 않을경우 returnend 실행에서 directionX나 directionY의 값은 stop 리턴
 				minDistanceY : number // 최소 이동해야하는 거리 y
 				minClickDistance : 10,
-				pageScroll : 'none' // vertical, horizontal, none 스크롤 방향
+				pageScroll : 'none' // vertical, horizontal, none 페이지 스크롤이 있을 시 스와이프 처리 하지 않을 스크롤 방향
 
 			*/
 			v.target.swipe({
 				returnstart : swipeGallery.touchStart,
 				returnmove : swipeGallery.touchMove,
 				returnend : swipeGallery.touchEnd,
-				returncancel : swipeGallery.touchCancel,
+				returncancel : swipeGallery.touchEnd,
 				minDistanceX : 100,
 				minDistanceY : 100,
 				minClickDistance : 10,
@@ -71,9 +71,9 @@
 				e.x: 현재위치(px)
 				e.y: 햔제위치(px)
 			*/
+
 			var v = swipeGallery.v,
 				posX = v.targetItemPos[v.numNow].x + e.distanceX;
-
 			swipeGallery.drag({
 				left: posX - v.targetWidth,
 				now: posX,
@@ -95,12 +95,8 @@
 			var v = swipeGallery.v,
 				action;
 
-			if( e.distanceX > 50 ){
-				action = e.directionX;
-				swipeGallery.move(action);
-			}else{
-				action = 'stop';
-			}
+			action = e.directionX;
+			swipeGallery.move(e.directionX);
 		},
 		touchCancel : function(e){
 			//console.log(e);
@@ -109,7 +105,7 @@
 			var v = swipeGallery.v,
 				i;
 
-			for(i = 0; i < v.numTotal; i++){
+			for(i = 0; i <= v.numTotal; i++){
 				v.targetItemPos[i] = {};
 				v.targetItemPos[i].x = v.targetItem.eq(i).position().left;
 				v.targetItemPos[i].y = v.targetItem.eq(i).position().top;
@@ -173,15 +169,16 @@
 			function animateComplete(){
 
 			}
-			v.numNow = ( action == 'left' ) ? item.right.index() : item.left.index();
-			//console.log(v.numNow)
-			v.nowItem = v.targetItem.eq(v.numNow);
+			if( action !== 'stop' ){
+				v.numNow = ( action === 'left' ) ? item.right.index() : item.left.index();
+				v.nowItem = v.targetItem.eq(v.numNow);
+			}
 		},
 		viewItem : function(){
 			var v = swipeGallery.v,
 				returns = {};
-			returns.left = (v.numNow == 0) ? v.targetItem.eq(v.numTotal) : v.targetItem.eq(v.numNow - 1),
-			returns.right = (v.numNow == v.numTotal) ? v.targetItem.eq(0) : v.targetItem.eq(v.numNow + 1);
+			returns.left = (v.numNow === 0) ? v.targetItem.eq(v.numTotal) : v.targetItem.eq(v.numNow - 1),
+			returns.right = (v.numNow === v.numTotal) ? v.targetItem.eq(0) : v.targetItem.eq(v.numNow + 1);
 
 			return returns;
 		},
