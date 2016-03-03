@@ -223,8 +223,7 @@ $.fn.swipe = function( param ){
 		_this.endTime();
 
 		//return
-		console.log(v.verticalScroll + '    ' +v.horizontalScroll)
-		if(v.horizontalScroll !== false && v.horizontalScroll !== false){
+		if(v.horizontalScroll !== false && v.verticalScroll !== false){
 			factor.returnend( returns );
 		}
 
