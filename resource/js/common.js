@@ -48,7 +48,7 @@
 				returncancel : swipeGallery.touchEnd,
 				minDistanceX : 100,
 				minDistanceY : 100,
-				minClickDistance : 10,
+				minClickDistance : 4,
 				pageScroll : 'vertical'
 			});
 		},
@@ -166,12 +166,13 @@
 			v.nowItem.animate({'left': pos.now},animateOpt);
 			item.right.animate({'left': pos.right},animateOpt);
 
-			function animateComplete(){
-
-			}
 			if( action !== 'stop' ){
 				v.numNow = ( action === 'left' ) ? item.right.index() : item.left.index();
 				v.nowItem = v.targetItem.eq(v.numNow);
+			}
+
+			function animateComplete(){
+
 			}
 		},
 		viewItem : function(){

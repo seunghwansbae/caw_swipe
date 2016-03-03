@@ -34,6 +34,9 @@ $.fn.swipe = function( param ){
 		v.eventType = null; //이벤트 타입 지정 ( touch, mouse )
 		v.removeClickEvent = false; //클릭이벤트를 지울것인지 여부
 		v.moveTime = 0; //이동시간
+		v.verticalScroll = null; //세로스크롤 할것인지 여부
+		v.horizontalScroll = null; //가로 스크롤 할것인지 여부
+
 		_this.swipeState = 'end'; //객체의 초기상태
 
 	/* setting */
@@ -47,13 +50,47 @@ $.fn.swipe = function( param ){
 			.on(v.eventType.move , _this.actionMove)
 			.on(v.eventType.end , _this.actionEnd);
 
-		if(v.eventType.touch) _this.on(v.eventType.cancel , _this.swipeCancel); //터치가 가능할때 터치캔슬 이벤트 적용
+		if(v.eventType.touch) _this.on(v.eventType.cancel, _this.swipeCancel); //터치가 가능할때 터치캔슬 이벤트 적용
 
-		//움직였을때 클릭이벤트
-		_this.addClickEvent();
+		//기본 이벤트 컨트롤
+		_this.defaultEventControl();
+	};
+	this.defaultEventControl = function(){
+		var targetObj = _this.get(0);
 
-		//터치 무브일때 스크롤 제어 참조 실행함수
-		_this.touchmoveRemove();
+		//터치 디바이스의 경우 기본 터치무브 이벤트 컨트롤		
+		if(v.eventType.touch){
+			document.addEventListener('touchmove',function(e){
+				if(  v.horizontalScroll === true || v.verticalScroll === true ){
+					e.preventDefault();
+				}
+			});
+		}
+
+		//터치디바이스가 아닌경우 클릭, 드래그 이벤트 컨트롤 
+		if(!v.eventType.touch){
+			if(document.addEventListener) {   // all browsers except IE before version 9
+				document.addEventListener('click', defaultEvent, false);
+				targetObj.addEventListener('dragstart', falseEvent);
+	        }else if(document.attachEvent) {    // IE before version 9
+				document.attachEvent('onclick', defaultEvent);
+				targetObj.attachEvent('ondragstart', falseEvent);
+	        }
+	        
+	        function defaultEvent(e){
+	        	//console.log(e.target)
+	        	if( v.removeClickEvent === true ){
+		        	e.preventDefault();
+		        	v.removeClickEvent = false;
+	        	}
+	        }
+	        function falseEvent(e){
+	        	if( e.target.tagName === 'IMG' ){
+	        		e.preventDefault()
+		        	return false;
+	        	}
+	        }
+		}
 	};
 
 	/* start */
@@ -122,23 +159,23 @@ $.fn.swipe = function( param ){
 			factor.returnmove( returns );
 			return false;
 		}else{
-			if( factor.pageScroll === 'vertical' && _this.horizontalScroll === null ){
+			if( factor.pageScroll === 'vertical' && v.horizontalScroll === null ){
 				if( mathDtcX > 5 || mathDtcY > 5 && mathDtcX > mathDtcY ){
-					_this.horizontalScroll = true;
+					v.horizontalScroll = true;
 				}else if( mathDtcX < 5 || mathDtcY < 5 && mathDtcX < mathDtcY ){
-					_this.horizontalScroll = false;
+					v.horizontalScroll = false;
 				}
-			}else if( factor.pageScroll === 'horizontal'  && _this.verticalScroll === null ){
+			}else if( factor.pageScroll === 'horizontal'  && v.verticalScroll === null ){
 				if( mathDtcY > 5 || mathDtcX > 5 && mathDtcY > mathDtcX ){
-					_this.verticalScroll = true;
+					v.verticalScroll = true;
 				}else if( mathDtcY < 5 || mathDtcX < 5 && mathDtcY < mathDtcX ){
-					_this.verticalScroll = false;
+					v.verticalScroll = false;
 				}
 			}
 
 			//옵션으로 적용된 스크롤 방향으로 스와이핑 되지 않을때만 이동 함수처리
-			if( (_this.horizontalScroll === true && factor.pageScroll === 'vertical') ||
-				(_this.verticalScroll === true && factor.pageScroll === 'horizontal') ||
+			if( (v.horizontalScroll === true && factor.pageScroll === 'vertical') ||
+				(v.verticalScroll === true && factor.pageScroll === 'horizontal') ||
 				factor.pageScroll === 'none' ){
 
 					factor.returnmove( returns );
@@ -148,20 +185,8 @@ $.fn.swipe = function( param ){
 
 	};
 
-	this.touchmoveRemove = function(){
-		if(v.eventType.touch){
-			document.addEventListener('touchmove',function(e){
-				if(  _this.horizontalScroll === true || _this.verticalScroll === true ){
-					console.log(11)
-					e.preventDefault();
-				}
-			});
-		}
-	}
-	this.verticalScroll = null;
-	this.horizontalScroll = null;
 	this.resetScrollDirection = function(){
-		this.verticalScroll = this.horizontalScroll = null;
+		v.verticalScroll = v.horizontalScroll = null;
 	};
 
 	/* end */
@@ -197,46 +222,20 @@ $.fn.swipe = function( param ){
 		returns.speedY = returns.distanceY / v.moveTime;
 		_this.endTime();
 
-		factor.returnend( returns );
+		//return
+		console.log(v.verticalScroll + '    ' +v.horizontalScroll)
+		if(v.horizontalScroll !== false && v.horizontalScroll !== false){
+			factor.returnend( returns );
+		}
 
 		//마우스업, 터치엔드 시 클릭이벤트를 없앨것인지 변수값 설정
 		if(returns.distanceX >= factor.minClickDistance || returns.distanceY >= factor.minClickDistance){
 			v.removeClickEvent = true;
 		}else{
-			console.log('클릭됨')
-			//e.target.click();
+			//console.log('클릭됨');
 		}
 
 		_this.resetScrollDirection();
-	};
-
-	this.addClickEvent = function(){
-		var targetEl = _this.get(0);
-
-		if(!v.eventType.touch){
-			if(document.addEventListener) {   // all browsers except IE before version 9
-				document.addEventListener('click', defaultEvent, false);
-				targetEl.addEventListener('dragstart', falseEvent);
-	        }else if(document.attachEvent) {    // IE before version 9
-				document.attachEvent('onclick', defaultEvent);
-				targetEl.attachEvent('ondragstart', falseEvent);
-	        }
-	        
-	        function defaultEvent(e){
-	        	//console.log(e.target)
-	        	if( v.removeClickEvent === true ){
-		        	e.preventDefault();
-		        	v.removeClickEvent = false;
-	        	}
-	        }
-	        function falseEvent(e){
-	        	if( e.target.tagName === 'IMG' ){
-	        		e.preventDefault()
-		        	return false;
-	        	}
-	        }
-		}
-
 	};
 
 	/* cancel */
