@@ -4,7 +4,7 @@
 		_this.find('img').on('dragstart',function(){ 이 함수를 네이티브로 변경해야함 << 처리된듯
 		터치 엔드시 리턴값에 속도 리턴 < 처리함
 	
-	스와이프 방향 값 지정으로 브라우저 스크롤 막기
+	스와이프 방향 값 지정으로 브라우저 스크롤 막기 처리된듯 ;;
 
 
 
@@ -13,8 +13,8 @@
 $.fn.swipe = function( param ){
 	'use strict';
 
-	var _this = this, //object
-		factor = {
+	var _this = this, //element object
+		factor = { //option object
 			returnstart : function(){}, //터치스타트,마우스 다운 함수
 			returnmove : function(){}, //터치무브, 마우스 무브 함수
 			returnend : function(){}, //터치엔드,마우스업 함수
@@ -69,27 +69,28 @@ $.fn.swipe = function( param ){
 
 		//터치디바이스가 아닌경우 클릭, 드래그 이벤트 컨트롤 
 		if(!v.eventType.touch){
-			if(document.addEventListener) {   // all browsers except IE before version 9
-				document.addEventListener('click', defaultEvent, false);
+			if(document.addEventListener) {   // more ie9 or other
+				targetObj.addEventListener('click', defaultEvent);
 				targetObj.addEventListener('dragstart', falseEvent);
-	        }else if(document.attachEvent) {    // IE before version 9
-				document.attachEvent('onclick', defaultEvent);
+			}else if(document.attachEvent) {    // upto ie9
+				targetObj.attachEvent('onclick', defaultEvent);
 				targetObj.attachEvent('ondragstart', falseEvent);
-	        }
-	        
-	        function defaultEvent(e){
-	        	//console.log(e.target)
-	        	if( v.removeClickEvent === true ){
-		        	e.preventDefault();
-		        	v.removeClickEvent = false;
-	        	}
-	        }
-	        function falseEvent(e){
-	        	if( e.target.tagName === 'IMG' ){
-	        		e.preventDefault()
-		        	return false;
-	        	}
-	        }
+			}
+			
+			function defaultEvent(e){
+				if( v.removeClickEvent === true ){
+					e.preventDefault();
+					e.stopPropagation();
+					v.removeClickEvent = false;
+				}
+			}
+			function falseEvent(e){
+				if( e.target.tagName === 'IMG' ){
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				}
+			}
 		}
 	};
 
@@ -150,15 +151,16 @@ $.fn.swipe = function( param ){
 		returns.distanceX = _this.distance(v.stateX, v.startX, false);
 		returns.distanceY = _this.distance(v.stateY, v.startY, false);
 
-
-		//마우스 무브일경우 이미지 복사기능 작동 방지
+		//이동거리 절대값으로 변환
 		mathDtcX = Math.abs(returns.distanceX);
 		mathDtcY = Math.abs(returns.distanceY);
 
 		if( !v.eventType.touch ){
+			//마우스 무브일경우 이미지 복사기능 작동 방지
 			factor.returnmove( returns );
 			return false;
 		}else{
+			//옵션 방향별 이동거리 미달 시 스크롤 변수 제어
 			if( factor.pageScroll === 'vertical' && v.horizontalScroll === null ){
 				if( mathDtcX > 5 || mathDtcY > 5 && mathDtcX > mathDtcY ){
 					v.horizontalScroll = true;
@@ -177,16 +179,10 @@ $.fn.swipe = function( param ){
 			if( (v.horizontalScroll === true && factor.pageScroll === 'vertical') ||
 				(v.verticalScroll === true && factor.pageScroll === 'horizontal') ||
 				factor.pageScroll === 'none' ){
-
 					factor.returnmove( returns );
 			}
 
 		}
-
-	};
-
-	this.resetScrollDirection = function(){
-		v.verticalScroll = v.horizontalScroll = null;
 	};
 
 	/* end */
@@ -222,19 +218,24 @@ $.fn.swipe = function( param ){
 		returns.speedY = returns.distanceY / v.moveTime;
 		_this.endTime();
 
-		//return
-		if(v.horizontalScroll !== false && v.verticalScroll !== false){
-			factor.returnend( returns );
-		}
-
-		//마우스업, 터치엔드 시 클릭이벤트를 없앨것인지 변수값 설정
+		//PC에서 마우스업 이벤트 시 클릭이벤트를 없앨것인지 변수값 설정
 		if(returns.distanceX >= factor.minClickDistance || returns.distanceY >= factor.minClickDistance){
 			v.removeClickEvent = true;
+
+			//return
+			if(v.horizontalScroll !== false && v.verticalScroll !== false){
+				factor.returnend( returns );
+			}
 		}else{
-			//console.log('클릭됨');
+			
 		}
 
 		_this.resetScrollDirection();
+	};
+
+	/* scroll direction reset */
+	this.resetScrollDirection = function(){
+		v.verticalScroll = v.horizontalScroll = null;
 	};
 
 	/* cancel */

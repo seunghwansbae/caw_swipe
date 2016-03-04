@@ -46,8 +46,8 @@
 				returnmove : swipeGallery.touchMove,
 				returnend : swipeGallery.touchEnd,
 				returncancel : swipeGallery.touchEnd,
-				minDistanceX : 100,
-				minDistanceY : 100,
+				minDistanceX : 0,
+				minDistanceY : 0,
 				minClickDistance : 4,
 				pageScroll : 'vertical'
 			});
@@ -94,12 +94,19 @@
 			*/
 			var v = swipeGallery.v,
 				action;
+			$('#speed').html(e.directionX+'이동속도 :'+e.speedX.toFixed(2)+'<br>'+'이동거리: '+e.distanceX+'   OR:  '+ (500-(e.speedX*10)) );
 
-			action = e.directionX;
-			swipeGallery.move(e.directionX);
+			if( v.target.outerWidth()/2 < e.distanceX || e.speedX > 2){
+				action = e.directionX;
+			}else{
+				action = 'stop';
+			}
+
+
+			swipeGallery.move(action, e.speedX);
 		},
 		touchCancel : function(e){
-			//console.log(e);
+
 		},
 		regPos : function(){
 			var v = swipeGallery.v,
@@ -134,12 +141,12 @@
 			v.nowItem.css('left', pos.now );
 			item.right.css('left', pos.right );
 		},
-		move : function(action){
+		move : function(action, speed){
 			var v = swipeGallery.v,
 				item = swipeGallery.viewItem(),
 				pos = {},
 				animateOpt = {
-					duration: 200,
+					duration: 200 - ( speed*10 ),
 					easing: 'easeOutCubic',
 					complete: animateComplete
 				};
@@ -191,6 +198,10 @@
 
 	$(document).ready(function(){
 		swipeGallery.init( $('#gallery') );
+
+		$('body').on('click','.item',function(){
+			//alert('click');
+		});
 	});
 
 })();
