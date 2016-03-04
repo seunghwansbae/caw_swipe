@@ -55,6 +55,7 @@ $.fn.swipe = function( param ){
 		//기본 이벤트 컨트롤
 		_this.defaultEventControl();
 	};
+
 	this.defaultEventControl = function(){
 		var targetObj = _this.get(0);
 
@@ -79,15 +80,16 @@ $.fn.swipe = function( param ){
 			
 			function defaultEvent(e){
 				if( v.removeClickEvent === true ){
-					e.preventDefault();
-					e.stopPropagation();
+					preventDefault(e);
+					stopPropagation(e);
 					v.removeClickEvent = false;
 				}
 			}
 			function falseEvent(e){
-				if( e.target.tagName === 'IMG' ){
-					e.preventDefault();
-					e.stopPropagation();
+				var targetObj = (e.target !== undefined) ? e.target : e.srcElement;
+				if( targetObj.tagName === 'IMG' ){
+					preventDefault(e);
+					stopPropagation(e);
 					return false;
 				}
 			}
@@ -216,6 +218,7 @@ $.fn.swipe = function( param ){
 		//이동속도 계산
 		returns.speedX = returns.distanceX / v.moveTime;
 		returns.speedY = returns.distanceY / v.moveTime;
+		
 		_this.endTime();
 
 		//PC에서 마우스업 이벤트 시 클릭이벤트를 없앨것인지 변수값 설정
@@ -275,7 +278,7 @@ $.fn.swipe = function( param ){
 	this.startTime = function(){
 		this.moveInterval = setInterval(function(){
 			v.moveTime += 1;
-		});
+		},1);
 	};
 
 	this.endTime = function(){
@@ -283,6 +286,21 @@ $.fn.swipe = function( param ){
 		this.moveInterval = null;
 		v.moveTime = 0;
 	};
+
+	function preventDefault(e){
+		if( e.preventDefault !== undefined ){
+			e.preventDefault();
+		}else{
+			e.returnValue = false;
+		}
+	}
+	function stopPropagation(e){
+		if( e.stopPropagation !== undefined ){
+			e.stopPropagation();
+		}else{
+			e.cancelBubble = true;
+		}
+	}
 
 	this.init();
 

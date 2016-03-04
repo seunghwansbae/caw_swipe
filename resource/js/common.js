@@ -17,6 +17,7 @@
 			v.numTotal = v.targetItem.length-1;
 			v.nowItem = v.targetItem.eq(v.numNow);
 			v.targetItemPos = {};
+			v.motionState = false;
 
 			/* reset */
 			
@@ -58,6 +59,7 @@
 				e.y : 현재위치(px)
 			*/
 			var v = swipeGallery.v;
+			if( v.motionState === true ) return false;
 
 			swipeGallery.regPos();
 			v.nowItem = $(v.targetItem.eq(v.numNow));
@@ -74,11 +76,15 @@
 
 			var v = swipeGallery.v,
 				posX = v.targetItemPos[v.numNow].x + e.distanceX;
+
+			if( v.motionState === true ) return false;
+
 			swipeGallery.drag({
 				left: posX - v.targetWidth,
 				now: posX,
 				right: posX + v.targetWidth
 			});
+		
 
 		},
 		touchEnd : function(e){
@@ -93,8 +99,11 @@
 				e.y: 마지막 위치(px)
 			*/
 			var v = swipeGallery.v,
-				action;
-			$('#speed').html(e.directionX+'이동속도 :'+e.speedX.toFixed(2)+'<br>'+'이동거리: '+e.distanceX+'   OR:  '+ (500-(e.speedX*10)) );
+				action,
+				speed;
+
+			if( v.motionState === true ) return false;
+
 
 			if( v.target.outerWidth()/2 < e.distanceX || e.speedX > 2){
 				action = e.directionX;
@@ -102,8 +111,17 @@
 				action = 'stop';
 			}
 
+			speed = (e.distanceX / e.speedX) * (e.speedX*2);
 
-			swipeGallery.move(action, e.speedX);
+			if( speed > 500 ){
+				speed = 500;
+			}else if( speed < 200){
+				speed = 200;
+			}
+
+			$('#speed').html(e.directionX+'이동속도 :'+e.speedX.toFixed(2)+'<br>'+'이동거리: '+e.distanceX+'   OR:  '+ speed );
+
+			swipeGallery.move(action, speed);
 		},
 		touchCancel : function(e){
 
@@ -146,7 +164,7 @@
 				item = swipeGallery.viewItem(),
 				pos = {},
 				animateOpt = {
-					duration: 200 - ( speed*10 ),
+					duration: speed,
 					easing: 'easeOutCubic',
 					complete: animateComplete
 				};
@@ -168,7 +186,7 @@
 					pos.right = v.targetWidth;
 					break;
 			}
-
+			v.motionState = true;
 			item.left.animate({'left': pos.left},animateOpt);
 			v.nowItem.animate({'left': pos.now},animateOpt);
 			item.right.animate({'left': pos.right},animateOpt);
@@ -179,7 +197,7 @@
 			}
 
 			function animateComplete(){
-
+				v.motionState = false;
 			}
 		},
 		viewItem : function(){
