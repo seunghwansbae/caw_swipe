@@ -18,11 +18,16 @@
 			v.nowItem = v.targetItem.eq(v.numNow);
 			v.targetItemPos = {};
 			v.motionState = false;
+			v.transformStyle = (!getSupportedTransform()) ? 'left' : getSupportedTransform();
 
 			/* reset */
-			
-			v.targetItem.css('left','-10000px');
-			v.targetItem.eq(v.numNow).css('left','0');
+			if( v.transformStyle === 'left' ){
+				v.targetItem.css('left','-10000px');
+				v.targetItem.eq(v.numNow).css('left','0');
+			}else{
+				v.targetItem.css(v.transformStyle,'translateX(-10000px)');
+				v.targetItem.eq(v.numNow).css(v.transformStyle,'translateX(0)');
+			}
 
 			swipeGallery.regPos();
 
@@ -155,9 +160,25 @@
 			var v = swipeGallery.v,
 				item = swipeGallery.viewItem();
 
-			item.left.css('left', pos.left );
-			v.nowItem.css('left', pos.now );
-			item.right.css('left', pos.right );
+			if( v.transformStyle === 'left' ){
+				item.left.css('left', pos.left );
+				v.nowItem.css('left', pos.now );
+				item.right.css('left', pos.right );
+			}else{
+				console.log(123)
+				item.left.css({
+					'z-index': pos.left,
+					'transform':'translateX('+pos.left+'px)'
+				});
+				v.nowItem.css({
+					'z-index': pos.now,
+					'transform':'translateX('+pos.now+'px)'
+				});
+				item.right.css({
+					'z-index': pos.right,
+					'transform':'translateX('+pos.right+'px)'
+				});
+			}
 		},
 		move : function(action, speed){
 			var v = swipeGallery.v,
@@ -187,9 +208,23 @@
 					break;
 			}
 			v.motionState = true;
-			item.left.animate({'left': pos.left},animateOpt);
-			v.nowItem.animate({'left': pos.now},animateOpt);
-			item.right.animate({'left': pos.right},animateOpt);
+
+			if( v.transformStyle === 'left' ){
+				item.left.animate({'left': pos.left},animateOpt);
+				v.nowItem.animate({'left': pos.now},animateOpt);
+				item.right.animate({'left': pos.right},animateOpt);
+			}else{
+				item.left.animate({'z-index': pos.now},{
+					duration: speed,
+					easing: 'easeOutCubic',
+					complete: animateComplete,
+					step: function(now, fx){
+						var $obj = $(this);
+						$obj.css({'transform':'translateX('+now+')'});
+					}
+				});
+
+			}
 
 			if( action !== 'stop' ){
 				v.numNow = ( action === 'left' ) ? item.right.index() : item.left.index();
@@ -213,6 +248,17 @@
 		}
 	}
 
+	function getSupportedTransform() {
+		var prefixes = ['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'];
+		var div = document.createElement('div');
+		for(var i = 0; i < prefixes.length; i++) {
+			if(div && div.style[prefixes[i]] !== undefined) {
+				return prefixes[i];
+			}
+			div = null;
+		}
+		return false;
+	}
 
 	$(document).ready(function(){
 		swipeGallery.init( $('#gallery') );
@@ -258,13 +304,13 @@ http://www.nextree.co.kr/p7323/
 
 */
 /*var person = {
-    type : "인간",
-    getType : function(){
-        return this.type;
-    },
-    getName : function(){
-        return this.name;
-    }
+	type : "인간",
+	getType : function(){
+		return this.type;
+	},
+	getName : function(){
+		return this.name;
+	}
 };
 
 var joon = Object.create(person);
