@@ -59,7 +59,7 @@
 				e.y : 현재위치(px)
 			*/
 			var v = swipeGallery.v;
-			if( v.motionState === true ) return false;
+			// if( v.motionState === true ) return false;
 
 			swipeGallery.regPos();
 			v.nowItem = $(v.targetItem.eq(v.numNow));
@@ -113,8 +113,8 @@
 
 			speed = (e.distanceX / e.speedX) * (e.speedX*2);
 
-			if( speed > 500 ){
-				speed = 500;
+			if( speed > 800 ){
+				speed = 800;
 			}else if( speed < 200){
 				speed = 200;
 			}
