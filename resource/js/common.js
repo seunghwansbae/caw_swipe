@@ -18,7 +18,7 @@
 			v.nowItem = v.targetItem.eq(v.numNow);
 			v.targetItemPos = {};
 			v.motionState = false;
-			v.transformStyle = (!getSupportedTransform()) ? 'left' : getSupportedTransform();
+			v.transformStyle = getSupportedTransform();
 
 			/* reset */
 			if( v.transformStyle === 'left' ){
@@ -165,19 +165,12 @@
 				v.nowItem.css('left', pos.now );
 				item.right.css('left', pos.right );
 			}else{
-				console.log(123)
-				item.left.css({
-					'z-index': pos.left,
-					'transform':'translateX('+pos.left+'px)'
-				});
-				v.nowItem.css({
-					'z-index': pos.now,
-					'transform':'translateX('+pos.now+'px)'
-				});
-				item.right.css({
-					'z-index': pos.right,
-					'transform':'translateX('+pos.right+'px)'
-				});
+				item.left.css('z-index', pos.left+'px')
+						 .css(v.transformStyle,'translateX('+pos.left+'px)');
+				v.nowItem.css('z-index', pos.now+'px')
+						 .css(v.transformStyle,'translateX('+pos.now+'px)');
+				item.right.css('z-index',  pos.right+'px')
+						  .css(v.transformStyle,'translateX('+pos.right+'px)');
 			}
 		},
 		move : function(action, speed){
@@ -214,13 +207,29 @@
 				v.nowItem.animate({'left': pos.now},animateOpt);
 				item.right.animate({'left': pos.right},animateOpt);
 			}else{
-				item.left.animate({'z-index': pos.now},{
+				item.left.animate({'z-index': pos.left+'px'},{
+					duration: speed,
+					easing: 'easeOutCubic',
+					step: function(now, fx){
+						var $obj = $(this);
+						$obj.css(v.transformStyle, 'translateX('+now+'px)');
+					}
+				});
+				v.nowItem.animate({'z-index': pos.now+'px'},{
 					duration: speed,
 					easing: 'easeOutCubic',
 					complete: animateComplete,
 					step: function(now, fx){
 						var $obj = $(this);
-						$obj.css({'transform':'translateX('+now+')'});
+						$obj.css(v.transformStyle, 'translateX('+now+'px)');
+					}
+				});
+				item.right.animate({'z-index': pos.right+'px'},{
+					duration: speed,
+					easing: 'easeOutCubic',
+					step: function(now, fx){
+						var $obj = $(this);
+						$obj.css(v.transformStyle, 'translateX('+now+'px)');
 					}
 				});
 
@@ -250,15 +259,43 @@
 
 	function getSupportedTransform() {
 		var prefixes = ['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'];
-		var div = document.createElement('div');
+		var div = document.createElement('div'),
+			returnValue;
 		for(var i = 0; i < prefixes.length; i++) {
 			if(div && div.style[prefixes[i]] !== undefined) {
-				return prefixes[i];
+				switch(prefixes[i]){
+					case 'transform' :
+						returnValue = 'transform';
+						break;
+					case 'WebkitTransform' :
+						returnValue = '-webkit-transform';
+						break;
+					case 'MozTransform' :
+						returnValue = '-moz-transform';
+						break;
+					case 'OTransform' :
+						returnValue = '-o-transform';
+						break;
+					case 'msTransform' :
+						returnValue = '-ms-transform';
+						break;
+					default :
+						returnValue = 'left';
+				}
+				return returnValue;
 			}
 			div = null;
 		}
 		return false;
 	}
+
+	function animate(){
+		var countNum = 0;
+		var enterframe = setInterval(function(){
+			console.log();
+		},1000);
+	}
+	animate()
 
 	$(document).ready(function(){
 		swipeGallery.init( $('#gallery') );
