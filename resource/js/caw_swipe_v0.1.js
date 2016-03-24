@@ -44,6 +44,9 @@ $.fn.swipe = function( param ){
 		v.moveTime = 0; //이동시간
 		v.verticalScroll = null; //세로스크롤 할것인지 여부
 		v.horizontalScroll = null; //가로 스크롤 할것인지 여부
+		v.moveArrayX = null; //이동거리 배열
+		v.moveArrayY = null; //이동거리 배열
+		v.moveArrayLimit = 1000;
 
 		_this.swipeState = 'end'; //객체의 초기상태
 
@@ -85,21 +88,20 @@ $.fn.swipe = function( param ){
 				targetObj.attachEvent('onclick', defaultEvent);
 				targetObj.attachEvent('ondragstart', falseEvent);
 			}
-			
-			function defaultEvent(e){
-				if( v.removeClickEvent === true ){
-					preventDefault(e);
-					stopPropagation(e);
-					v.removeClickEvent = false;
-				}
+		}	
+		function defaultEvent(e){
+			if( v.removeClickEvent === true ){
+				preventDefault(e);
+				stopPropagation(e);
+				v.removeClickEvent = false;
 			}
-			function falseEvent(e){
-				var targetObj = (e.target !== undefined) ? e.target : e.srcElement;
-				if( targetObj.tagName === 'IMG' ){
-					preventDefault(e);
-					stopPropagation(e);
-					return false;
-				}
+		}
+		function falseEvent(e){
+			var targetObj = (e.target !== undefined) ? e.target : e.srcElement;
+			if( targetObj.tagName === 'IMG' ){
+				preventDefault(e);
+				stopPropagation(e);
+				return false;
 			}
 		}
 	};
@@ -112,6 +114,8 @@ $.fn.swipe = function( param ){
 		_this.swipeState = 'start';
 		returns.x = v.startX = v.stateX = useEvent.pageX;
 		returns.y = v.startY = v.stateY = useEvent.pageY;
+		v.moveArrayX = [];
+		v.moveArrayY = [];
 		factor.returnstart( returns );
 		_this.startTime();
 
@@ -170,7 +174,7 @@ $.fn.swipe = function( param ){
 			factor.returnmove( returns );
 			return false;
 		}else{
-			//옵션 방향별 이동거리 미달 시 스크롤 변수 제어
+			//옵션 방향별 이동거리 미달 시 스크롤 되도록 변수 제어
 			if( factor.pageScroll === 'vertical' && v.horizontalScroll === null ){
 				if( mathDtcX > 5 || mathDtcY > 5 && mathDtcX > mathDtcY ){
 					v.horizontalScroll = true;
@@ -226,6 +230,8 @@ $.fn.swipe = function( param ){
 		//이동속도 계산
 		returns.speedX = returns.distanceX / v.moveTime;
 		returns.speedY = returns.distanceY / v.moveTime;
+		console.log(v.moveArrayX[0])
+		console.log(v.moveArrayX[v.moveArrayLimit])
 		
 		_this.endTime();
 
@@ -284,15 +290,25 @@ $.fn.swipe = function( param ){
 	this.moveInterval = null;
 
 	this.startTime = function(){
-		this.moveInterval = setInterval(function(){
+		this.moveInterval = setInterval(function(i){
 			v.moveTime += 1;
-		},1);
+			//속도체크를 위한 배열에 삽입
+			v.moveArrayX.push(v.stateX);
+			v.moveArrayY.push(v.stateY);
+			if(v.moveArrayX.length-1 > v.moveArrayLimit ){
+				console.log('지움')
+				v.moveArrayX.shift();
+				v.moveArrayY.shift();
+			}
+		},0);
 	};
 
 	this.endTime = function(){
 		clearInterval(this.moveInterval)
 		this.moveInterval = null;
 		v.moveTime = 0;
+		v.moveArrayX = [];
+		v.moveArrayY = [];
 	};
 
 	function preventDefault(e){

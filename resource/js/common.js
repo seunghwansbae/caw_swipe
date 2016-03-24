@@ -21,13 +21,13 @@
 			v.transformStyle = getSupportedTransform();
 
 			/* reset */
-			if( v.transformStyle === 'left' ){
+			// if( v.transformStyle === 'left' ){
 				v.targetItem.css('left','-10000px');
 				v.targetItem.eq(v.numNow).css('left','0');
-			}else{
-				v.targetItem.css(v.transformStyle,'translateX(-10000px)');
-				v.targetItem.eq(v.numNow).css(v.transformStyle,'translateX(0)');
-			}
+			// }else{
+			// 	v.targetItem.css(v.transformStyle,'translateX(-10000px)');
+			// 	v.targetItem.eq(v.numNow).css(v.transformStyle,'translateX(0)');
+			// }
 
 			swipeGallery.regPos();
 
@@ -160,18 +160,18 @@
 			var v = swipeGallery.v,
 				item = swipeGallery.viewItem();
 
-			if( v.transformStyle === 'left' ){
+			// if( v.transformStyle === 'left' ){
 				item.left.css('left', pos.left );
 				v.nowItem.css('left', pos.now );
 				item.right.css('left', pos.right );
-			}else{
+			/*}else{
 				item.left.css('z-index', pos.left+'px')
 						 .css(v.transformStyle,'translateX('+pos.left+'px)');
 				v.nowItem.css('z-index', pos.now+'px')
 						 .css(v.transformStyle,'translateX('+pos.now+'px)');
 				item.right.css('z-index',  pos.right+'px')
 						  .css(v.transformStyle,'translateX('+pos.right+'px)');
-			}
+			}*/
 		},
 		move : function(action, speed){
 			var v = swipeGallery.v,
@@ -202,11 +202,11 @@
 			}
 			v.motionState = true;
 
-			if( v.transformStyle === 'left' ){
+			// if( v.transformStyle === 'left' ){
 				item.left.animate({'left': pos.left},animateOpt);
 				v.nowItem.animate({'left': pos.now},animateOpt);
 				item.right.animate({'left': pos.right},animateOpt);
-			}else{
+		/*	}else{
 				item.left.animate({'z-index': pos.left+'px'},{
 					duration: speed,
 					easing: 'easeOutCubic',
@@ -233,7 +233,7 @@
 					}
 				});
 
-			}
+			}*/
 
 			if( action !== 'stop' ){
 				v.numNow = ( action === 'left' ) ? item.right.index() : item.left.index();
